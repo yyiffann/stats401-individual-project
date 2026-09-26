@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Visualization Critique and Redesign: The 2016 Electoral Map</title>
+
+    <style>
+      :root {
+        --ink: #1d2733;
+        --mute: #5d6875;
+        --line: #d5dae1;
+        --bg: #fff;
+        --dem: #2166ac;
+        --rep: #b2182b;
+        --oth: #98a1ab;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font: 16px/1.5 Arial, Helvetica, sans-serif;
+      }
+
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 24px 20px 40px;
+      }
+
+      h1,
+      h2 {
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+        margin: 0 0 6px;
+      }
+
+      h2 {
+        font-size: 1.35rem;
+        margin: 28px 0 10px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+      }
+
+      .lede {
+        color: var(--mute);
+        margin: 0 0 8px;
+      }
+
+      p {
+        max-width: 70ch;
+      }
+
+      figure {
+        margin: 16px 0;
+      }
+
+      figure img {
+        max-width: 100%;
+        height: auto;
+        border: 1px solid var(--line);
+      }
+
+      figcaption,
+      .note {
+        font-size: 0.88rem;
+        color: var(--mute);
+      }
+
+      svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+      }
+
+      svg text {
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+
+      .tile,
+      .seg {
+        cursor: pointer;
+      }
+
+      .on {
+        stroke: var(--ink) !important;
+        stroke-width: 3 !important;
+      }
+
+      #tip {
+        position: absolute;
+        pointer-events: none;
+        background: #fff;
+        border: 1px solid var(--ink);
+        padding: 8px 10px;
+        font-size: 0.85rem;
+        line-height: 1.45;
+        display: none;
+        max-width: 240px;
+        z-index: 5;
+      }
+
+      .view {
+        margin: 18px 0 6px;
+      }
+
+      .view h3 {
+        font-size: 1rem;
+        margin: 0 0 2px;
+      }
+
+      .view p {
+        margin: 0 0 8px;
+        font-size: 0.9rem;
+        color: var(--mute);
+      }
+
+      ul {
+        padding-left: 1.2em;
+      }
+
+      a {
+        color: var(--dem);
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <h1>Visualization Critique and Redesign</h1>
+      <p class="lede">2016 U.S. presidential election | Yifan Zuo</p>
+
+      <h2>The original</h2>
+
+      <figure>
+        <img
+          src="img/original.png"
+          alt="Wikipedia's 2016 U.S. presidential election electoral vote map: states colored red or blue with electoral vote counts and colored dots for faithless electors"
+        >
+
+        <figcaption>
+          "Presidential election results map," from Wikipedia,
+          <a href="https://en.wikipedia.org/wiki/2016_United_States_presidential_election">
+            2016 United States presidential election
+          </a>.
+        </figcaption>
+      </figure>
+
+      <p>
+        The map colors each state by the winner (blue for Clinton, red for Trump)
+        and prints the state's electoral votes on it. Dots in five additional
+        colors mark seven electors who did not vote for their state's winner.
+        The data behind it is one row per state: votes for each candidate and
+        electoral votes awarded. My critique and design rationale are in the
+        <a href="report.html">accompanying report</a>.
+      </p>
+
+      <h2>The redesign</h2>
+
+      <p>
+        Hover over any state in either view to see it in both. Color is the margin
+        between the two main candidates, from deep blue (Clinton ahead) through
+        white (a tie) to deep red (Trump ahead).
+      </p>
+
+      <div class="view">
+        <h3>Popular vote vs. electoral vote</h3>
+
+        <p>
+          The winner of the electoral vote was not the winner of the popular vote.
+          Gray shows other candidates (5.7% of popular votes) and 7 electoral votes
+          for other candidates.
+        </p>
+
+        <svg
+          id="pv"
+          viewBox="0 0 900 96"
+          role="img"
+          aria-label="Stacked bars comparing popular vote share and electoral vote share"
+        ></svg>
+      </div>
+
+      <div class="view">
+        <h3>Every state as an equal tile, colored by margin</h3>
+
+        <p>
+          The number is the state's electoral votes. A ring in the corner marks
+          a state with faithless electors.
+        </p>
+
+        <svg
+          id="tiles"
+          viewBox="0 0 648 440"
+          role="img"
+          aria-label="Tile grid map of U.S. states colored by margin of victory"
+        ></svg>
+      </div>
+
+      <div class="view">
+        <h3>Electoral votes lined up by margin</h3>
+
+        <p>
+          Each state's width is its electoral votes. The line marks 270, the
+          number needed to win. This is a state-level comparison, not a
+          reconstruction of individual electors' votes.
+        </p>
+
+        <svg
+          id="strip"
+          viewBox="0 0 900 235"
+          role="img"
+          aria-label="States ordered by margin with width proportional to electoral votes"
+        ></svg>
+      </div>
+
+      <p class="note">
+        Notes: the margin is Clinton's share minus Trump's share of all votes in
+        the state, shown on a scale capped at 40 points. Maine's fourth electoral
+        vote (ME-02) went to Trump. The tile and strip use statewide margins and
+        total allocated electoral votes, without separating districts or faithless
+        electors. The national bars show the actual electoral votes cast.
+        Third-party votes are counted in the total but not in the color, which
+        matters most in Utah, where one independent candidate took 21.5%.
+        The tile layout is a common schematic of U.S. geography and is not to scale.
+      </p>
+
+      <h2>Data and references</h2>
+
+      <ul>
+        <li>
+          Vote and electoral vote totals by state: Federal Election Commission,
+          <a href="https://www.fec.gov/resources/cms-content/documents/federalelections2016.pdf">
+            <em>
+              Federal Elections 2016: Election Results for the U.S. President,
+              the U.S. Senate and the U.S. House of Representatives
+            </em>
+          </a>
+          (December 2017). Stored in
+          <a href="data/election2016.csv">data/election2016.csv</a>.
+        </li>
+
+        <li>
+          Original visualization: Wikipedia,
+          <a href="https://en.wikipedia.org/wiki/2016_United_States_presidential_election">
+            2016 United States presidential election
+          </a>.
+        </li>
+
+        <li>
+          Built with <a href="https://d3js.org">D3.js</a> v7.
+        </li>
+      </ul>
+    </main>
+
+    <div id="tip"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+
+    <script>
+      const GRID = {
+        AK: [0, 0],
+        ME: [11, 0],
+        VT: [10, 1],
+        NH: [11, 1],
+        WA: [1, 2],
+        ID: [2, 2],
+        MT: [3, 2],
+        ND: [4, 2],
+        MN: [5, 2],
+        IL: [6, 2],
+        WI: [7, 2],
+        MI: [8, 2],
+        NY: [9, 2],
+        RI: [10, 2],
+        MA: [11, 2],
+        OR: [1, 3],
+        NV: [2, 3],
+        WY: [3, 3],
+        SD: [4, 3],
+        IA: [5, 3],
+        IN: [6, 3],
+        OH: [7, 3],
+        PA: [8, 3],
+        NJ: [9, 3],
+        CT: [10, 3],
+        CA: [1, 4],
+        UT: [2, 4],
+        CO: [3, 4],
+        NE: [4, 4],
+        MO: [5, 4],
+        KY: [6, 4],
+        WV: [7, 4],
+        VA: [8, 4],
+        MD: [9, 4],
+        DE: [10, 4],
+        AZ: [2, 5],
+        NM: [3, 5],
+        KS: [4, 5],
+        AR: [5, 5],
+        TN: [6, 5],
+        NC: [7, 5],
+        SC: [8, 5],
+        DC: [9, 5],
+        OK: [4, 6],
+        LA: [5, 6],
+        MS: [6, 6],
+        AL: [7, 6],
+        GA: [8, 6],
+        HI: [0, 7],
+        TX: [4, 7],
+        FL: [8, 7]
+      };
+
+      const DEM = "#2166ac";
+      const REP = "#b2182b";
+      const OTH = "#98a1ab";
+      const INK = "#1d2733";
+
+      const col = d3
+        .scaleDiverging([-40, 0, 40], t => d3.interpolateRdBu(t))
+        .clamp(true);
+
+      const fmt = d3.format(",");
+      const tip = d3.select("#tip");
+
+      d3.csv("data/election2016.csv", d => ({
+        name: d.state,
+        abbr: d.abbr,
+        ev: +d.ev,
+        evC: +d.ev_clinton,
+        evT: +d.ev_trump,
+        evO: +d.ev_other,
+        c: +d.votes_clinton,
+        t: +d.votes_trump,
+        n: +d.votes_total,
+        fl: d.faithless,
+        m: ((+d.votes_clinton - +d.votes_trump) / +d.votes_total) * 100
+      })).then(draw);
+
+      function hi(abbr, on) {
+        d3.selectAll(".tile,.seg")
+          .classed("on", function () {
+            return on && this.dataset.a === abbr;
+          });
+      }
+
+      function show(e, d) {
+        const lead = d.m >= 0 ? "Clinton" : "Trump";
+
+        tip
+          .style("display", "block")
+          .style("left", (e.pageX + 14) + "px")
+          .style("top", (e.pageY + 14) + "px")
+          .html(
+            `<b>${d.name}</b> &middot; ${d.ev} electoral votes<br>` +
+            `Clinton ${fmt(d.c)} (${(d.c / d.n * 100).toFixed(1)}%)<br>` +
+            `Trump ${fmt(d.t)} (${(d.t / d.n * 100).toFixed(1)}%)<br>` +
+            `${lead} +${Math.abs(d.m).toFixed(1)} points` +
+            (d.fl ? `<br>Faithless electors: ${d.fl}` : "")
+          );
+      }
+
+      function wire(sel) {
+        sel
+          .attr("data-a", d => d.abbr)
+          .on("mouseenter", (e, d) => {
+            hi(d.abbr, true);
+            show(e, d);
+          })
+          .on("mousemove", (e, d) => {
+            show(e, d);
+          })
+          .on("mouseleave", () => {
+            hi(null, false);
+            tip.style("display", "none");
+          });
+      }
+
+      function draw(data) {
+        // 1. Popular vs electoral
+
+        const tot = d => d3.sum(data, x => x[d]);
+
+        const pop = [
+          ["Clinton", tot("c"), DEM],
+          ["Trump", tot("t"), REP],
+          ["Others", tot("n") - tot("c") - tot("t"), OTH]
+        ];
+
+        const el = [
+          ["Clinton", tot("evC"), DEM],
+          ["Trump", tot("evT"), REP],
+          ["Faithless", tot("evO"), OTH]
+        ];
+
+        const pv = d3.select("#pv");
+        const X = d3.scaleLinear([0, 1], [110, 890]);
+
+        [
+          ["Popular vote", pop, 10],
+          ["Electoral vote", el, 54]
+        ].forEach(([lab, rows, y]) => {
+          const s = d3.sum(rows, r => r[1]);
+          let x0 = 0;
+
+          pv.append("text")
+            .attr("x", 0)
+            .attr("y", y + 22)
+            .attr("font-size", 14)
+            .attr("fill", INK)
+            .text(lab);
+
+          rows.forEach(([who, v, c]) => {
+            const w = X(v / s) - X(0);
+
+            pv.append("rect")
+              .attr("x", X(x0 / s))
+              .attr("y", y)
+              .attr("width", w)
+              .attr("height", 34)
+              .attr("fill", c);
+
+            if (w > 60) {
+              pv.append("text")
+                .attr("x", X(x0 / s) + 8)
+                .attr("y", y + 22)
+                .attr("font-size", 13)
+                .attr("fill", "#fff")
+                .text(
+                  lab === "Popular vote"
+                    ? `${who} ${(v / s * 100).toFixed(1)}%`
+                    : `${who} ${v}`
+                );
+            }
+
+            x0 += v;
+          });
+        });
+
+        // 2. Tile grid
+
+        const S = 54;
+        const tl = d3.select("#tiles");
+
+        const g = tl
+          .selectAll("g")
+          .data(data)
+          .join("g")
+          .attr(
+            "transform",
+            d => `translate(${GRID[d.abbr][0] * S},${GRID[d.abbr][1] * S})`
+          );
+
+        g.append("rect")
+          .attr("class", "tile")
+          .attr("width", 50)
+          .attr("height", 50)
+          .attr("rx", 3)
+          .attr("fill", d => col(d.m))
+          .attr("stroke", "#c3c9d1")
+          .attr("stroke-width", 1)
+          .call(wire);
+
+        const tc = d => Math.abs(d.m) > 18 ? "#fff" : INK;
+
+        g.append("text")
+          .attr("x", 25)
+          .attr("y", 23)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 14)
+          .attr("font-weight", 700)
+          .attr("fill", tc)
+          .attr("pointer-events", "none")
+          .text(d => d.abbr);
+
+        g.append("text")
+          .attr("x", 25)
+          .attr("y", 40)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 12)
+          .attr("fill", tc)
+          .attr("pointer-events", "none")
+          .text(d => d.ev);
+
+        g.filter(d => d.fl)
+          .append("circle")
+          .attr("cx", 42)
+          .attr("cy", 8)
+          .attr("r", 3.5)
+          .attr("fill", "none")
+          .attr("stroke", tc)
+          .attr("stroke-width", 1.5)
+          .attr("pointer-events", "none");
+
+        // Legend inside the empty top-left of the grid
+
+        const lg = tl
+          .append("g")
+          .attr("transform", "translate(70,4)");
+
+        const gid = "lgrad";
+
+        const defs = tl
+          .append("defs")
+          .append("linearGradient")
+          .attr("id", gid);
+
+        d3.range(0, 1.01, 0.1).forEach(t => {
+          defs.append("stop")
+            .attr("offset", t)
+            .attr("stop-color", col(-40 + 80 * t));
+        });
+
+        lg.append("rect")
+          .attr("width", 240)
+          .attr("height", 12)
+          .attr("fill", `url(#${gid})`)
+          .attr("stroke", "#c3c9d1");
+
+        lg.append("text")
+          .attr("y", 28)
+          .attr("font-size", 11)
+          .attr("fill", INK)
+          .text("Trump +40 or more");
+
+        lg.append("text")
+          .attr("x", 120)
+          .attr("y", 28)
+          .attr("font-size", 11)
+          .attr("text-anchor", "middle")
+          .attr("fill", INK)
+          .text("tie");
+
+        lg.append("text")
+          .attr("x", 240)
+          .attr("y", 28)
+          .attr("font-size", 11)
+          .attr("text-anchor", "end")
+          .attr("fill", INK)
+          .text("Clinton +40 or more");
+
+        // 3. Electoral vote strip, ordered by margin
+
+        const sorted = [...data].sort((a, b) => b.m - a.m);
+        let cum = 0;
+
+        sorted.forEach(d => {
+          d.x0 = cum;
+          cum += d.ev;
+          d.x1 = cum;
+        });
+
+        const tp = sorted.find(d => d.x1 >= 270);
+        const W = 900;
+        const sx = d3.scaleLinear([0, 538], [0, W]);
+
+        const st = d3.select("#strip");
+        const y0 = 64;
+        const h = 60;
+
+        st.selectAll("rect")
+          .data(sorted)
+          .join("rect")
+          .attr("class", "seg")
+          .attr("x", d => sx(d.x0))
+          .attr("y", y0)
+          .attr("width", d => sx(d.ev) - sx(0))
+          .attr("height", h)
+          .attr("fill", d => col(d.m))
+          .attr("stroke", "#fff")
+          .attr("stroke-width", 0.8)
+          .call(wire);
+
+        st.selectAll("text.l")
+          .data(sorted.filter(d => d.ev >= 10))
+          .join("text")
+          .attr("class", "l")
+          .attr("x", d => sx(d.x0 + d.ev / 2))
+          .attr("y", y0 + h / 2 + 4)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 10)
+          .attr("pointer-events", "none")
+          .attr("fill", d => Math.abs(d.m) > 18 ? "#fff" : INK)
+          .text(d => d.abbr);
+
+        st.append("line")
+          .attr("x1", sx(270))
+          .attr("x2", sx(270))
+          .attr("y1", y0 - 14)
+          .attr("y2", y0 + h + 8)
+          .attr("stroke", INK)
+          .attr("stroke-width", 2);
+
+        st.append("text")
+          .attr("x", sx(270))
+          .attr("y", y0 - 20)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 12)
+          .attr("font-weight", 700)
+          .attr("fill", INK)
+          .text("270 to win");
+
+        // Callouts: tipping point and the three closest Trump wins
+
+        const call = ["MI", "PA", "WI"].map(
+          a => sorted.find(d => d.abbr === a)
+        );
+
+        call.forEach((d, i) => {
+          const x = sx(d.x0 + d.ev / 2);
+          const a = ["end", "middle", "start"][i];
+          const dx = [-2, 0, 2][i];
+
+          st.append("line")
+            .attr("x1", x)
+            .attr("x2", x)
+            .attr("y1", y0 + h)
+            .attr("y2", y0 + h + 16)
+            .attr("stroke", INK)
+            .attr("stroke-width", 1);
+
+          st.append("text")
+            .attr("x", x + dx)
+            .attr("y", y0 + h + 28)
+            .attr("text-anchor", a)
+            .attr("font-size", 11)
+            .attr("fill", INK)
+            .text(`${d.abbr} +${Math.abs(d.m).toFixed(1)}`);
+        });
+
+        st.append("text")
+          .attr("x", sx(270))
+          .attr("y", y0 + h + 52)
+          .attr("text-anchor", "middle")
+          .attr("font-size", 12)
+          .attr("fill", INK)
+          .text(
+            `State-level tipping point: ${tp.name} (Trump +${Math.abs(tp.m).toFixed(1)} points)`
+          );
+
+        st.append("g")
+          .attr("transform", `translate(0,${y0 + h + 68})`)
+          .call(
+            d3.axisBottom(sx)
+              .tickValues([0, 100, 200, 300, 400, 500, 538])
+              .tickSizeOuter(0)
+          )
+          .call(g => {
+            g.selectAll("text")
+              .attr("font-size", 11);
+          });
+
+        st.append("text")
+          .attr("x", 0)
+          .attr("y", y0 - 20)
+          .attr("font-size", 11)
+          .attr("fill", INK)
+          .text("Clinton margin largest");
+
+        st.append("text")
+          .attr("x", W)
+          .attr("y", y0 - 20)
+          .attr("text-anchor", "end")
+          .attr("font-size", 11)
+          .attr("fill", INK)
+          .text("Trump margin largest");
+      }
+    </script>
+  </body>
+</html>
